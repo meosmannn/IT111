@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -59,7 +59,18 @@ def update(id):
     else:
         return render_template('update.html', task=task)
 
-
+@app.route('/api/tasks', methods=['GET'])
+def api_tasks():
+    tasks = Todo.query.order_by(Todo.date_created).all()
+    task_list = []
+    for task in tasks:
+        task_dict = {
+            'id': task.id,
+            'content': task.content,
+            'date_created': task.date_created.isoformat()
+        }
+        task_list.append(task_dict)
+    return jsonify(task_list)
 
 if __name__ == "__main__":
     app.run(debug=True)
